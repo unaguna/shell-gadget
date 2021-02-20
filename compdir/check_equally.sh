@@ -3,23 +3,58 @@
 # 2つのディレクトリの内容を比較し、差分をファイル一覧として出力する。
 # ファイル同士の同一性はそのハッシュ値によって判断するため、原理的には誤陰性が起こりうる。
 
+function usage_exit () {
+    echo "Usage:" `basename $0` "[<base_dir> [<target_dir>]]"
+    echo "      " `basename $0` "-b <base_hashlist> [<target_dir>]"
+    exit
+}
+
 function hashlist () {
     ./hashlist.sh "$@"
     return $?
 }
 
-base_dir=${1:-"."}
-target_dir=${2:-"."}
-
 SHELL_NAME=`basename $0`
 TMP_DIR="/tmp"
+
+
+################################################################################
+# 引数解析
+################################################################################
+while getopts b:h OPT
+do
+    case $OPT in
+        b)  BASE_LIST=$OPTARG
+            ;;
+        h)  usage_exit
+            ;;
+        \?) usage_exit
+            ;;
+    esac
+done
+
+shift $((OPTIND - 1))
+
+################################################################################
+# 引数取得
+################################################################################
+
+if [ -n "$BASE_LIST" ]; then
+    target_dir=${1:-"."}
+
+    base_list_tmp=
+    base_list=$BASE_LIST
+else
+    base_dir=${1:-"."}
+    target_dir=${2:-"."}
+fi
 
 TAG_BASE="base"
 TAG_BASE_EMPTY=----
 TAG_TARGET="target"
 TAG_TARGET_EMPTY=------
 
-base_list=`mktemp $TMP_DIR/$SHELL_NAME.base_list.XXXXXX`
+base_list_tmp=`mktemp $TMP_DIR/$SHELL_NAME.base_list.XXXXXX`
 target_list=`mktemp $TMP_DIR/$SHELL_NAME.target_list.XXXXXX`
 inter_base_list=`mktemp $TMP_DIR/$SHELL_NAME.inter_base_list.XXXXXX`
 inter_target_list=`mktemp $TMP_DIR/$SHELL_NAME.inter_target_list.XXXXXX`
@@ -34,8 +69,12 @@ inter_target_list=`mktemp $TMP_DIR/$SHELL_NAME.inter_target_list.XXXXXX`
 # 各ファイルがどれに当てはまるかがわかる形式で出力する。
 
 
-# ハッシュリストを作成。
-hashlist $base_dir > $base_list
+# base のハッシュリストを作成。ただし、引数でハッシュリストが指定されている場合は作成しない。
+if [ -z "$base_list" ]; then
+    base_list=$base_list_tmp
+    hashlist $base_dir > $base_list
+fi
+# target のハッシュリストを作成。
 hashlist $target_dir > $target_list
 
 # 2つのハッシュリストを加工し、先頭に『存在フラグ』フィールドを付ける。
@@ -72,4 +111,4 @@ awk '{arr[$3]+=$1} END{for(i in arr) print arr[i], i}' | \
 sed -e "s/^1/$TAG_BASE -- $TAG_TARGET_EMPTY/" -e "s/^2/$TAG_BASE_EMPTY -- $TAG_TARGET/" -e "s/^3/$TAG_BASE != $TAG_TARGET/"
 
 
-rm -f $base_list $target_list $inter_base_list $inter_target_list
+rm -f $base_list_tmp $target_list $inter_base_list $inter_target_list
