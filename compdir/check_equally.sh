@@ -23,6 +23,20 @@ TMP_DIR="/tmp"
 
 
 ################################################################################
+# エラーハンドリング
+################################################################################
+
+set -e -o pipefail
+
+function finally () {
+    set +e +o pipefail
+    
+    # 一時ファイルが存在する場合に削除
+    rm -f $base_list_tmp $target_list $inter_base_list $inter_target_list
+}
+trap finally EXIT
+
+################################################################################
 # 引数解析
 ################################################################################
 while getopts b:h OPT
@@ -113,6 +127,3 @@ cat $inter_base_list $inter_target_list | \
 sort -k 3 | uniq -f1 -u | \
 awk '{arr[$3]+=$1} END{for(i in arr) print arr[i], i}' | \
 sed -e "s/^1/$TAG_BASE -- $TAG_TARGET_EMPTY/" -e "s/^2/$TAG_BASE_EMPTY -- $TAG_TARGET/" -e "s/^3/$TAG_BASE != $TAG_TARGET/"
-
-
-rm -f $base_list_tmp $target_list $inter_base_list $inter_target_list
