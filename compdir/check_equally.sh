@@ -6,6 +6,10 @@
 function usage_exit () {
     echo "Usage:" `basename $0` "[<base_dir> [<target_dir>]]"
     echo "      " `basename $0` "-b <base_hashlist> [<target_dir>]"
+    echo
+    echo "Environment Variables:"
+    echo "    TAG_BASE:   比較結果の表示に使用される、比較元ディレクトリを表す文字列。"
+    echo "    TAG_TARGET: 比較結果の表示に使用される、比較対象ディレクトリを表す文字列。"
     exit
 }
 
@@ -49,10 +53,10 @@ else
     target_dir=${2:-"."}
 fi
 
-TAG_BASE="base"
-TAG_BASE_EMPTY=----
-TAG_TARGET="target"
-TAG_TARGET_EMPTY=------
+TAG_BASE=${TAG_BASE:-"base"}
+TAG_BASE_EMPTY=`echo $TAG_BASE | sed 's/./-/g'`
+TAG_TARGET=${TAG_TARGET:-"target"}
+TAG_TARGET_EMPTY=`echo $TAG_TARGET | sed 's/./-/g'`
 
 base_list_tmp=`mktemp $TMP_DIR/$SHELL_NAME.base_list.XXXXXX`
 target_list=`mktemp $TMP_DIR/$SHELL_NAME.target_list.XXXXXX`
