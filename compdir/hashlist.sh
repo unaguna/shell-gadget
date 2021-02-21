@@ -45,8 +45,6 @@ base_dir=${1:-"."}
 
 
 if [ -n "$list_file" ]; then
-    a=`pwd`
-    
     ( cd $base_dir && find . -type f -print0 ) | \
     ./pathfilter.sh -z -f $list_file | \
     ( cd $base_dir && xargs -r -0 sha256sum )
