@@ -4,7 +4,7 @@
 # ファイル同士の同一性はそのハッシュ値によって判断するため、原理的には誤陰性が起こりうる。
 
 function usage_exit () {
-    echo "Usage:" `basename $0` "[<base_dir> [<target_dir>]]"
+    echo "Usage:" `basename $0` "[-f <path_filter_list>] [<base_dir> [<target_dir>]]"
     echo "      " `basename $0` "-b <base_hashlist> [<target_dir>]"
     echo
     echo "Environment Variables:"
@@ -27,6 +27,10 @@ base_list_tmp=
 SHELL_NAME=`basename $0`
 TMP_DIR="/tmp"
 
+# hashlist 実行時の -f オプション。
+# 指定するなら "-f <path_filter_list>" の形にし、指定しないなら空文字列にする。
+list_file_option=
+
 
 ################################################################################
 # エラーハンドリング
@@ -45,10 +49,12 @@ trap finally EXIT
 ################################################################################
 # 引数解析
 ################################################################################
-while getopts b:h OPT
+while getopts f:b:h OPT
 do
     case $OPT in
         b)  BASE_LIST=$OPTARG
+            ;;
+        f)  list_file_option="-f $OPTARG"
             ;;
         h)  usage_exit
             ;;
@@ -87,8 +93,8 @@ if [ -z "$base_list" ]; then
     base_list_tmp=`mktemp $TMP_DIR/$SHELL_NAME.base_list.XXXXXX`
 
     base_list=$base_list_tmp
-    hashlist $base_dir > $base_list
+    hashlist $list_file_option $base_dir > $base_list
 fi
 
 # target のハッシュリストを作成して、base のハッシュリストと比較
-hashlist $target_dir | comp_hashlist $base_list
+hashlist $list_file_option $target_dir | comp_hashlist $base_list
