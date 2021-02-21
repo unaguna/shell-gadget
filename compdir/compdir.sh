@@ -37,7 +37,7 @@ function finally () {
     set +e +o pipefail
     
     # 一時ファイルが存在する場合に削除
-    rm -f $base_list_tmp $target_list
+    rm -f $base_list_tmp
 }
 trap finally EXIT
 
@@ -73,7 +73,6 @@ else
 fi
 
 base_list_tmp=`mktemp $TMP_DIR/$SHELL_NAME.base_list.XXXXXX`
-target_list=`mktemp $TMP_DIR/$SHELL_NAME.target_list.XXXXXX`
 
 
 # すべてのファイルは次のいずれかに当てはまる。
@@ -90,8 +89,6 @@ if [ -z "$base_list" ]; then
     base_list=$base_list_tmp
     hashlist $base_dir > $base_list
 fi
-# target のハッシュリストを作成。
-hashlist $target_dir > $target_list
 
-
-comp_hashlist $base_list $target_list
+# target のハッシュリストを作成して、base のハッシュリストと比較
+hashlist $target_dir | comp_hashlist $base_list
