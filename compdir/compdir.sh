@@ -23,6 +23,7 @@ function comp_hashlist () {
     return $?
 }
 
+base_list_tmp=
 SHELL_NAME=`basename $0`
 TMP_DIR="/tmp"
 
@@ -65,14 +66,11 @@ shift $((OPTIND - 1))
 if [ -n "$BASE_LIST" ]; then
     target_dir=${1:-"."}
 
-    base_list_tmp=
     base_list=$BASE_LIST
 else
     base_dir=${1:-"."}
     target_dir=${2:-"."}
 fi
-
-base_list_tmp=`mktemp $TMP_DIR/$SHELL_NAME.base_list.XXXXXX`
 
 
 # すべてのファイルは次のいずれかに当てはまる。
@@ -86,6 +84,8 @@ base_list_tmp=`mktemp $TMP_DIR/$SHELL_NAME.base_list.XXXXXX`
 
 # base のハッシュリストを作成。ただし、引数でハッシュリストが指定されている場合は作成しない。
 if [ -z "$base_list" ]; then
+    base_list_tmp=`mktemp $TMP_DIR/$SHELL_NAME.base_list.XXXXXX`
+
     base_list=$base_list_tmp
     hashlist $base_dir > $base_list
 fi
