@@ -26,7 +26,7 @@ function finally () {
     set +e +o pipefail
     
     # 一時ファイルが存在する場合に削除
-    rm -f $inter_base_list $inter_target_list
+    rm -f $inter_hashlist
 }
 trap finally EXIT
 
@@ -46,8 +46,7 @@ TAG_BASE_EMPTY=`echo $TAG_BASE | sed 's/./-/g'`
 TAG_TARGET=${TAG_TARGET:-"target"}
 TAG_TARGET_EMPTY=`echo $TAG_TARGET | sed 's/./-/g'`
 
-inter_base_list=`mktemp $TMP_DIR/$SHELL_NAME.inter_base_list.XXXXXX`
-inter_target_list=`mktemp $TMP_DIR/$SHELL_NAME.inter_target_list.XXXXXX`
+inter_hashlist=`mktemp $TMP_DIR/$SHELL_NAME.inter_hashlist.XXXXXX`
 
 
 # すべてのファイルは次のいずれかに当てはまる。
@@ -59,18 +58,18 @@ inter_target_list=`mktemp $TMP_DIR/$SHELL_NAME.inter_target_list.XXXXXX`
 # 各ファイルがどれに当てはまるかがわかる形式で出力する。
 
 
-# 2つのハッシュリストを加工し、先頭に『存在フラグ』フィールドを付ける。
-cat $base_list | awk "{print \"1 \"\$1\" \"\$2}" > $inter_base_list
-cat $target_list | awk "{print \"2 \"\$1\" \"\$2}" > $inter_target_list
-
-# 2つのハッシュリストを以下の手順で比較する。
-# cat $ $
-#   2つのハッシュリストを連結する。
+# 2つのハッシュリストを加工し結合。
+# 先頭に『存在フラグ』フィールドを付ける。
 #   この時点で、各ファイルについて次の状態になる。
 #         (I). 『存在フラグ』が1の行だけある。
 #        (II). 『存在フラグ』が2の行だけある。
 #       (III). 『存在フラグ』が1の行と2の行があり、『ハッシュ値』は一致しない
 #        (IV). 『存在フラグ』が1の行と2の行があり、『ハッシュ値』は一致する
+cat $base_list | awk "{print \"1 \"\$1\" \"\$2}" > $inter_hashlist
+cat $target_list | awk "{print \"2 \"\$1\" \"\$2}" >> $inter_hashlist
+
+
+# inter_hashlist を以下の手順で加工することで、2つのハッシュリストを比較する。
 # sort -k 3 | uniq -f1 -u
 #   (ハッシュ値, ファイルパス) の組が重複する場合、このファイルは base と target で一致しているので除外する。
 #   この時点で、各ファイルについて次の状態になる。
@@ -87,7 +86,6 @@ cat $target_list | awk "{print \"2 \"\$1\" \"\$2}" > $inter_target_list
 #        (IV). 行がない
 # sed -e ...
 #   上記の『存在フラグ』を、視認しやすい文字列へ変換する。
-cat $inter_base_list $inter_target_list | \
-sort -k 3 | uniq -f1 -u | \
+sort -k 3 $inter_hashlist | uniq -f1 -u | \
 awk '{arr[$3]+=$1} END{for(i in arr) print arr[i], i}' | \
 sed -e "s/^1/$TAG_BASE -- $TAG_TARGET_EMPTY/" -e "s/^2/$TAG_BASE_EMPTY -- $TAG_TARGET/" -e "s/^3/$TAG_BASE != $TAG_TARGET/"
