@@ -4,7 +4,7 @@
 # ファイル同士の同一性はそのハッシュ値によって判断するため、原理的には誤陰性が起こりうる。
 
 function usage_exit () {
-    echo "Usage:" `basename $0` "[-f <path_filter_list>] [<base_dir> [<clone_dir>]]"
+    echo "Usage:" `basename $0` "[-f <path_filter_list>] [-t <target_subdir>] [<base_dir> [<clone_dir>]]"
     echo "      " `basename $0` "-b <base_hashlist> [<clone_dir>]"
     echo
     echo "Environment Variables:"
@@ -31,6 +31,10 @@ TMP_DIR="/tmp"
 # 指定するなら "-f <path_filter_list>" の形にし、指定しないなら空文字列にする。
 list_file_option=
 
+# hashlist 実行時の -t オプション。
+# 指定するなら "-t <target_dir>" の形にし、指定しないなら空文字列にする。
+target_dir_option=
+
 
 ################################################################################
 # エラーハンドリング
@@ -49,12 +53,14 @@ trap finally EXIT
 ################################################################################
 # 引数解析
 ################################################################################
-while getopts f:b:h OPT
+while getopts f:b:t:h OPT
 do
     case $OPT in
         b)  BASE_LIST=$OPTARG
             ;;
         f)  list_file_option="-f $OPTARG"
+            ;;
+        t)  target_dir_option="-t $OPTARG"
             ;;
         h)  usage_exit
             ;;
@@ -93,8 +99,8 @@ if [ -z "$base_list" ]; then
     base_list_tmp=`mktemp $TMP_DIR/$SHELL_NAME.base_list.XXXXXX`
 
     base_list=$base_list_tmp
-    hashlist $list_file_option $base_dir > $base_list
+    hashlist $list_file_option $target_dir_option $base_dir > $base_list
 fi
 
 # clone のハッシュリストを作成して、base のハッシュリストと比較
-hashlist $list_file_option $clone_dir | comp_hashlist $base_list
+hashlist $list_file_option $target_dir_option $clone_dir | comp_hashlist $base_list
