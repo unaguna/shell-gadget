@@ -73,8 +73,8 @@ TAG_TARGET_EMPTY=`echo $TAG_TARGET | sed 's/./-/g'`
 # sed -e ...
 #   上記の『存在フラグ』を、視認しやすい文字列へ変換する。
 {
-    awk "{print \"1 \"\$1\" \"\$2}" $base_list
-    awk "{print \"2 \"\$1\" \"\$2}" $target_list
+    awk '{print "1", $1, $2}' $base_list
+    awk '{print "2", $1, $2}' $target_list
 } | \
 sort -k 3 | uniq -f1 -u | \
 awk '{arr[$3]+=$1} END{for(i in arr) print arr[i], i}' | \
