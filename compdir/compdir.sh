@@ -4,12 +4,12 @@
 # ファイル同士の同一性はそのハッシュ値によって判断するため、原理的には誤陰性が起こりうる。
 
 function usage_exit () {
-    echo "Usage:" `basename $0` "[-f <path_filter_list>] [<base_dir> [<target_dir>]]"
-    echo "      " `basename $0` "-b <base_hashlist> [<target_dir>]"
+    echo "Usage:" `basename $0` "[-f <path_filter_list>] [<base_dir> [<clone_dir>]]"
+    echo "      " `basename $0` "-b <base_hashlist> [<clone_dir>]"
     echo
     echo "Environment Variables:"
     echo "    TAG_BASE:   比較結果の表示に使用される、比較元ディレクトリを表す文字列。"
-    echo "    TAG_TARGET: 比較結果の表示に使用される、比較対象ディレクトリを表す文字列。"
+    echo "    TAG_CLONE:  比較結果の表示に使用される、比較対象ディレクトリを表す文字列。"
     exit
 }
 
@@ -70,20 +70,20 @@ shift $((OPTIND - 1))
 ################################################################################
 
 if [ -n "$BASE_LIST" ]; then
-    target_dir=${1:-"."}
+    clone_dir=${1:-"."}
 
     base_list=$BASE_LIST
 else
     base_dir=${1:-"."}
-    target_dir=${2:-"."}
+    clone_dir=${2:-"."}
 fi
 
 
 # すべてのファイルは次のいずれかに当てはまる。
-#   (I). base にのみ存在し、target には存在しない
-#   (II). target にのみ存在し、base には存在しない
-#   (III). base にも target にも存在するが内容が一致しない
-#   (IV). base にも target にも存在し、内容が一致する
+#   (I). base にのみ存在し、clone には存在しない
+#   (II). clone にのみ存在し、base には存在しない
+#   (III). base にも clone にも存在するが内容が一致しない
+#   (IV). base にも clone にも存在し、内容が一致する
 # これらのうち、(I),(II),(III) に当てはまるものだけを抽出し、
 # 各ファイルがどれに当てはまるかがわかる形式で出力する。
 
@@ -96,5 +96,5 @@ if [ -z "$base_list" ]; then
     hashlist $list_file_option $base_dir > $base_list
 fi
 
-# target のハッシュリストを作成して、base のハッシュリストと比較
-hashlist $list_file_option $target_dir | comp_hashlist $base_list
+# clone のハッシュリストを作成して、base のハッシュリストと比較
+hashlist $list_file_option $clone_dir | comp_hashlist $base_list
