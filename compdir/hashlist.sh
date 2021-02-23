@@ -7,6 +7,10 @@ function usage_exit () {
 }
 
 
+SHELL_DIR=$(cd $(dirname $0) && pwd)
+PATH="$SHELL_DIR:$PATH"
+
+
 ################################################################################
 # エラーハンドリング
 ################################################################################
@@ -48,7 +52,7 @@ target_dir=${target_dir:-"."}
 
 if [ -n "$list_file" ]; then
     ( cd "$root_dir" && find "$target_dir" -type f -print0 ) | \
-    ./pathfilter.sh -z -f $list_file | \
+    pathfilter.sh -z -f $list_file | \
     ( cd "$root_dir" && xargs -r -0 sha256sum )
 else
     cd "$root_dir" && find "$target_dir" -type f -print0 | \

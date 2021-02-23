@@ -14,18 +14,20 @@ function usage_exit () {
 }
 
 function hashlist () {
-    ./hashlist.sh "$@"
+    hashlist.sh "$@"
     return $?
 }
 
 function comp_hashlist () {
-    ./comp_hashlist.sh "$@"
+    comp_hashlist.sh "$@"
     return $?
 }
 
 base_list_tmp=
+SHELL_DIR=$(cd $(dirname $0) && pwd)
 SHELL_NAME=`basename $0`
 TMP_DIR="/tmp"
+PATH="$SHELL_DIR:$PATH"
 
 # hashlist 実行時の -f オプション。
 # 指定するなら "-f <path_filter_list>" の形にし、指定しないなら空文字列にする。

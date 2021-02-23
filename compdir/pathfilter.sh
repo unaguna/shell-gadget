@@ -1,7 +1,9 @@
 #!/bin/bash
 
+SHELL_DIR=$(cd $(dirname $0) && pwd)
 SHELL_NAME=`basename $0`
 TMP_DIR="/tmp"
+PATH="$SHELL_DIR:$PATH"
 
 
 ################################################################################
@@ -46,11 +48,11 @@ done
 # リストの指定があった場合は、sed スクリプトファイルに変換する。
 if [ -n "$list_file" ]; then
     # ホワイト・ブラックリストを sed のスクリプトファイルに変換する。
-    # ./trim_comment.sh:                コメント行を削除する。
+    # trim_comment.sh:                コメント行を削除する。
     # tac:                              下の行ほど優先したいので逆順にする。
     # sed -e 's/\([][\/.]\)/\\\1/g' :   パスに含まれる ][\/. をエスケープし、正規表現内で通常文字として扱えるようにする。
     # awk ...:                          A の行を p\nd(出力) 命令に、D の行を d(無視) 命令にして、sed のスクリプトファイルを作成する。
-    ./trim_comment.sh $list_file | \
+    trim_comment.sh $list_file | \
     tac | \
     sed -e 's/\([][\/.]\)/\\\1/g' | \
     awk '{if($1 == "A"){print "/^"$2"/{p\nd}"}else if($1 == "D"){print "/^"$2"/d"}}' > $script_file
