@@ -4,12 +4,12 @@
 # ファイル同士の同一性はそのハッシュ値によって判断するため、原理的には誤陰性が起こりうる。
 
 function usage_exit () {
-    echo "Usage:" `basename $0` "<base_hashlist> [<clone_hashlist>]"
+    echo "Usage:" `basename $0` "[--number-state] <base_hashlist> [<clone_hashlist>]"
     echo
     echo "Environment Variables:"
     echo "    TAG_BASE:   比較結果の表示に使用される、比較元ディレクトリを表す文字列。"
     echo "    TAG_CLONE:  比較結果の表示に使用される、比較対象ディレクトリを表す文字列。"
-    exit
+    exit $1
 }
 
 SHELL_NAME=`basename $0`
@@ -22,15 +22,48 @@ SHELL_NAME=`basename $0`
 set -e -o pipefail
 
 ################################################################################
+# 引数解析
+################################################################################
+declare -i argc=0
+declare -a argv=()
+number_state=
+while (( $# > 0 )); do
+    case $1 in
+        -)
+            ((++argc))
+            argv=("${argv[@]}" "$1")
+            shift
+            ;;
+        -*)
+            if [[ "$1" == '--number-state' ]]; then
+                number_state='true'
+            else
+                usage_exit 1
+            fi
+            shift
+            ;;
+        *)
+            ((++argc))
+            argv=("${argv[@]}" "$1")
+            shift
+            ;;
+    esac
+done
+exit_code=$#
+if [ $exit_code -ne 0 ]; then
+    exit $exit_code
+fi
+
+################################################################################
 # 引数取得
 ################################################################################
 
-if [ $# -le 0 -o $# -ge 3 ]; then
-    usage_exit
+if [ $argc -le 0 -o $argc -ge 3 ]; then
+    usage_exit 1
 fi
 
-base_list=$1
-clone_list=${2:-"-"}
+base_list=${argv[0]}
+clone_list=${argv[1]:-"-"}
 
 TAG_BASE=${TAG_BASE:-"base"}
 TAG_BASE_EMPTY=`echo $TAG_BASE | sed 's/./-/g'`
@@ -46,6 +79,16 @@ TAG_CLONE_EMPTY=`echo $TAG_CLONE | sed 's/./-/g'`
 # これらのうち、(I),(II),(III) に当てはまるものだけを抽出し、
 # 各ファイルがどれに当てはまるかがわかる形式で出力する。
 
+
+# (I), (II), (III) のどれに該当するかを表す数値『存在フラグ』を
+# 出力用文字列に変換するためのコマンド。
+if [ -n "$number_state" ]; then
+    # オプションで、文字列変換を OFF にできる。
+    state_replace=(cat)
+else
+    # 『存在フラグ』を視認しやすい文字列へ変換するコマンド。
+    state_replace=(sed -e "s/^1/$TAG_BASE -- $TAG_CLONE_EMPTY/" -e "s/^2/$TAG_BASE_EMPTY -- $TAG_CLONE/" -e "s/^3/$TAG_BASE != $TAG_CLONE/")
+fi
 
 # 2つのハッシュリストを比較する。
 # { awk ... awk ... }
@@ -70,7 +113,7 @@ TAG_CLONE_EMPTY=`echo $TAG_CLONE | sed 's/./-/g'`
 #        (II). 『存在フラグ』が2の行だけある。
 #       (III). 『存在フラグ』が3の行だけある。
 #        (IV). 行がない
-# sed -e ...
+# ${state_replace[@]}
 #   上記の『存在フラグ』を、視認しやすい文字列へ変換する。
 {
     awk '{print "1", $1, $2}' $base_list
@@ -78,4 +121,4 @@ TAG_CLONE_EMPTY=`echo $TAG_CLONE | sed 's/./-/g'`
 } | \
 sort -k 3 | uniq -f1 -u | \
 awk '{arr[$3]+=$1} END{for(i in arr) print arr[i], i}' | \
-sed -e "s/^1/$TAG_BASE -- $TAG_CLONE_EMPTY/" -e "s/^2/$TAG_BASE_EMPTY -- $TAG_CLONE/" -e "s/^3/$TAG_BASE != $TAG_CLONE/"
+"${state_replace[@]}"
