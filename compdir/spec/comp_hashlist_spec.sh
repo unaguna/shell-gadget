@@ -6,7 +6,7 @@ Describe 'comp_hashlist.sh'
 
         {
             echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c7 ./a.txt
-            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c8 ./b.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c8 ./b b.txt
             echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25ca ./dir/1.txt
             echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25cb ./dir/2.txt
         } > "$tmp_hashlist1"
@@ -21,7 +21,7 @@ Describe 'comp_hashlist.sh'
 
         When call comp_hashlist.sh "$tmp_hashlist1" "$tmp_hashlist2"
 
-        The output should include 'base -- ----- ./b.txt'
+        The output should include 'base -- ----- ./b b.txt'
         The output should include '---- -- clone ./c.txt'
         The output should include 'base != clone ./dir/2.txt'
         The lines of output should equal 3
@@ -38,7 +38,7 @@ Describe 'comp_hashlist.sh'
 
         {
             echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c7 ./a.txt
-            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c8 ./b.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c8 ./b b.txt
             echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25ca ./dir/1.txt
             echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25cb ./dir/2.txt
         } > "$tmp_hashlist1"
@@ -53,7 +53,7 @@ Describe 'comp_hashlist.sh'
 
         When call comp_hashlist.sh "$tmp_hashlist1" "$tmp_hashlist2"
 
-        The output should include 'DIR1 -- ---- ./b.txt'
+        The output should include 'DIR1 -- ---- ./b b.txt'
         The output should include '---- -- DIR2 ./c.txt'
         The output should include 'DIR1 != DIR2 ./dir/2.txt'
         The lines of output should equal 3
@@ -67,7 +67,7 @@ Describe 'comp_hashlist.sh'
 
         {
             echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c7 ./a.txt
-            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c8 ./b.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c8 ./b b.txt
             echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25ca ./dir/1.txt
             echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25cb ./dir/2.txt
         } > "$tmp_hashlist1"
@@ -82,7 +82,7 @@ Describe 'comp_hashlist.sh'
 
         When call comp_hashlist.sh --number-state "$tmp_hashlist1" "$tmp_hashlist2"
 
-        The output should include '1 ./b.txt'
+        The output should include '1 ./b b.txt'
         The output should include '2 ./c.txt'
         The output should include '3 ./dir/2.txt'
         The lines of output should equal 3
@@ -95,7 +95,7 @@ Describe 'comp_hashlist.sh'
 
         {
             echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c7 ./a.txt
-            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c8 ./b.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c8 ./b b.txt
             echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25ca ./dir/1.txt
             echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25cb ./dir/2.txt
         } > "$tmp_hashlist1"
@@ -110,7 +110,7 @@ Describe 'comp_hashlist.sh'
 
         When call comp_hashlist.sh "$tmp_hashlist1"
 
-        The output should include 'base -- ----- ./b.txt'
+        The output should include 'base -- ----- ./b b.txt'
         The output should include '---- -- clone ./c.txt'
         The output should include 'base != clone ./dir/2.txt'
         The lines of output should equal 3

@@ -13,7 +13,10 @@ Describe 'hashlist.sh'
         The word 2 of line 4 of output should equal './dir/1.txt'
         The word 1 of line 5 of output should equal '53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3'
         The word 2 of line 5 of output should equal './dir/2.txt'
-        The lines of output should equal 5
+        The word 1 of line 6 of output should equal 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+        The word 2 of line 6 of output should equal './s'
+        The word 3 of line 6 of output should equal 's.txt'
+        The lines of output should equal 6
     End
 
     It 'show hashes of files in the target-directory'
@@ -29,7 +32,10 @@ Describe 'hashlist.sh'
         The word 2 of line 4 of output should equal 'sample_base/dir/1.txt'
         The word 1 of line 5 of output should equal '53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3'
         The word 2 of line 5 of output should equal 'sample_base/dir/2.txt'
-        The lines of output should equal 5
+        The word 1 of line 6 of output should equal 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+        The word 2 of line 6 of output should equal 'sample_base/s'
+        The word 3 of line 6 of output should equal 's.txt'
+        The lines of output should equal 6
     End
 
     It 'show hashes of files in the root-directory filterd by condlist'
@@ -48,7 +54,10 @@ Describe 'hashlist.sh'
         The word 2 of line 2 of output should equal './b.txt'
         The word 1 of line 3 of output should equal 'a3a5e715f0cc574a73c3f9bebb6bc24f32ffd5b67b387244c2c909da779a1478'
         The word 2 of line 3 of output should equal './c.txt'
-        The lines of output should equal 3
+        The word 1 of line 4 of output should equal 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+        The word 2 of line 4 of output should equal './s'
+        The word 3 of line 4 of output should equal 's.txt'
+        The lines of output should equal 4
 
         rm -f "$tmp_condlist"
     End
