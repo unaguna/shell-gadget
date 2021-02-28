@@ -106,10 +106,10 @@ fi
 #        (II). 『存在フラグ』が2の行だけある。
 #       (III). 『存在フラグ』が1の行と2の行があり、『ハッシュ値』は一致しない
 #        (IV). 行がない
-# sed -e 's/ \+\([0-9a-fA-F]\+\) \+/;\1;/'
-#   フィールドの区切りをセミコロンに変える。
+# sed -e 's/ \+\([0-9a-fA-F]\+\) \+/\x0\1\x0/'
+#   フィールドの区切りをヌル文字に変える。
 #   ファイル名に含まれるスペースが区切り文字とならないようにするため。
-# awk -F ';' '{arr[$3]+=$1} END{for(i in arr) print arr[i], i}'
+# awk -F '\0' '{arr[$3]+=$1} END{for(i in arr) print arr[i], i}'
 #   SQLでいうところの「SELECT sum(存在フラグ),ファイルパス GROUP BY ファイルパス」
 #   この時点で、各ファイルについて次の状態になる。
 #         (I). 『存在フラグ』が1の行だけある。
@@ -123,6 +123,6 @@ fi
     awk '{print "2", $0}' $clone_list
 } | \
 sort -k 3 | uniq -f1 -u | \
-sed -e 's/ \+\([0-9a-fA-F]\+\) \+/;\1;/' | \
-awk -F ';' '{arr[$3]+=$1} END{for(i in arr) print arr[i], i}' | \
+sed -e 's/ \+\([0-9a-fA-F]\+\) \+/\x0\1\x0/' | \
+awk -F '\0' '{arr[$3]+=$1} END{for(i in arr) print arr[i], i}' | \
 "${state_replace[@]}"
