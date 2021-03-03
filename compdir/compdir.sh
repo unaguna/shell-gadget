@@ -10,7 +10,7 @@ function usage_exit () {
     echo "Environment Variables:"
     echo "    TAG_LEFT:   比較結果の表示に使用される、左ディレクトリを表す文字列。"
     echo "    TAG_RIGHT:  比較結果の表示に使用される、右ディレクトリを表す文字列。"
-    exit
+    exit $1
 }
 
 function hashlist () {
@@ -55,35 +55,54 @@ trap finally EXIT
 ################################################################################
 # 引数解析
 ################################################################################
-while getopts f:L:t:h OPT
-do
-    case $OPT in
-        L)  LEFT_LIST=$OPTARG
+declare -i argc=0
+declare -a argv=()
+number_state=
+while (( $# > 0 )); do
+    case $1 in
+        -)
+            ((++argc))
+            argv=("${argv[@]}" "$1")
+            shift
             ;;
-        f)  list_file_option="-f $OPTARG"
+        -L)
+            LEFT_LIST="$2"
+            shift 2
             ;;
-        t)  target_dir_option="-t $OPTARG"
+        -f)
+            list_file_option="-f $2"
+            shift 2
             ;;
-        h)  usage_exit
+        -t)
+            target_dir_option="-t $2"
+            shift 2
             ;;
-        \?) usage_exit
+        -*)
+            usage_exit 1
+            ;;
+        *)
+            ((++argc))
+            argv=("${argv[@]}" "$1")
+            shift
             ;;
     esac
 done
-
-shift $((OPTIND - 1))
+exit_code=$?
+if [ $exit_code -ne 0 ]; then
+    exit $exit_code
+fi
 
 ################################################################################
 # 引数取得
 ################################################################################
 
 if [ -n "$LEFT_LIST" ]; then
-    right_dir=${1:-"."}
+    right_dir=${argv[0]:-"."}
 
     left_list=$LEFT_LIST
 else
-    left_dir=${1:-"."}
-    right_dir=${2:-"."}
+    left_dir=${argv[0]:-"."}
+    right_dir=${argv[1]:-"."}
 fi
 
 
