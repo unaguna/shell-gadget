@@ -4,12 +4,12 @@
 # ファイル同士の同一性はそのハッシュ値によって判断するため、原理的には誤陰性が起こりうる。
 
 function usage_exit () {
-    echo "Usage:" `basename $0` "[-f <path_filter_list>] [-t <target_subdir>] [<base_dir> [<clone_dir>]]"
-    echo "      " `basename $0` "-b <base_hashlist> [<clone_dir>]"
+    echo "Usage:" `basename $0` "[-f <path_filter_list>] [-t <target_subdir>] [<left_dir> [<right_dir>]]"
+    echo "      " `basename $0` "-b <left_hashlist> [<right_dir>]"
     echo
     echo "Environment Variables:"
-    echo "    TAG_BASE:   比較結果の表示に使用される、比較元ディレクトリを表す文字列。"
-    echo "    TAG_CLONE:  比較結果の表示に使用される、比較対象ディレクトリを表す文字列。"
+    echo "    TAG_LEFT:   比較結果の表示に使用される、左ディレクトリを表す文字列。"
+    echo "    TAG_RIGHT:  比較結果の表示に使用される、右ディレクトリを表す文字列。"
     exit
 }
 
@@ -23,7 +23,7 @@ function comp_hashlist () {
     return $?
 }
 
-base_list_tmp=
+left_list_tmp=
 SHELL_DIR=$(cd $(dirname $0) && pwd)
 SHELL_NAME=`basename $0`
 TMP_DIR="/tmp"
@@ -48,7 +48,7 @@ function finally () {
     set +e +o pipefail
     
     # 一時ファイルが存在する場合に削除
-    rm -f $base_list_tmp
+    rm -f $left_list_tmp
 }
 trap finally EXIT
 
@@ -58,7 +58,7 @@ trap finally EXIT
 while getopts f:b:t:h OPT
 do
     case $OPT in
-        b)  BASE_LIST=$OPTARG
+        b)  LEFT_LIST=$OPTARG
             ;;
         f)  list_file_option="-f $OPTARG"
             ;;
@@ -77,32 +77,32 @@ shift $((OPTIND - 1))
 # 引数取得
 ################################################################################
 
-if [ -n "$BASE_LIST" ]; then
-    clone_dir=${1:-"."}
+if [ -n "$LEFT_LIST" ]; then
+    right_dir=${1:-"."}
 
-    base_list=$BASE_LIST
+    left_list=$LEFT_LIST
 else
-    base_dir=${1:-"."}
-    clone_dir=${2:-"."}
+    left_dir=${1:-"."}
+    right_dir=${2:-"."}
 fi
 
 
 # すべてのファイルは次のいずれかに当てはまる。
-#   (I). base にのみ存在し、clone には存在しない
-#   (II). clone にのみ存在し、base には存在しない
-#   (III). base にも clone にも存在するが内容が一致しない
-#   (IV). base にも clone にも存在し、内容が一致する
+#   (I). left にのみ存在し、right には存在しない
+#   (II). right にのみ存在し、left には存在しない
+#   (III). left にも right にも存在するが内容が一致しない
+#   (IV). left にも right にも存在し、内容が一致する
 # これらのうち、(I),(II),(III) に当てはまるものだけを抽出し、
 # 各ファイルがどれに当てはまるかがわかる形式で出力する。
 
 
-# base のハッシュリストを作成。ただし、引数でハッシュリストが指定されている場合は作成しない。
-if [ -z "$base_list" ]; then
-    base_list_tmp=`mktemp $TMP_DIR/$SHELL_NAME.base_list.XXXXXX`
+# left のハッシュリストを作成。ただし、引数でハッシュリストが指定されている場合は作成しない。
+if [ -z "$left_list" ]; then
+    left_list_tmp=`mktemp $TMP_DIR/$SHELL_NAME.left_list.XXXXXX`
 
-    base_list=$base_list_tmp
-    hashlist $list_file_option $target_dir_option $base_dir > $base_list
+    left_list=$left_list_tmp
+    hashlist $list_file_option $target_dir_option $left_dir > $left_list
 fi
 
-# clone のハッシュリストを作成して、base のハッシュリストと比較
-hashlist $list_file_option $target_dir_option $clone_dir | comp_hashlist $base_list
+# right のハッシュリストを作成して、left のハッシュリストと比較
+hashlist $list_file_option $target_dir_option $right_dir | comp_hashlist $left_list
