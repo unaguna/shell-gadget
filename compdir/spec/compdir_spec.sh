@@ -51,12 +51,12 @@ Describe 'compdir.sh'
         The lines of output should equal 5
     End
 
-    It 'compares the directory and the hashlist'
+    It 'compares the the hashlist and directory'
         tmp_hashlist1=`mktemp`
 
         hashlist.sh "$left_dir" > "$tmp_hashlist1"
 
-        When call compdir.sh -b "$tmp_hashlist1" "$right_dir"
+        When call compdir.sh -L "$tmp_hashlist1" "$right_dir"
 
         The output should include 'LEFT -- ----- ./s s.txt'
         The output should include 'LEFT != RIGHT ./b.txt'
@@ -68,7 +68,7 @@ Describe 'compdir.sh'
         rm -f "$tmp_hashlist1"
     End
 
-    It 'compares the directory and the hashlist with filter'
+    It 'compares the hashlist and the directory with filter'
         tmp_hashlist1=`mktemp`
         tmp_condlist=`mktemp`
 
@@ -79,7 +79,7 @@ Describe 'compdir.sh'
 
         hashlist.sh -f "$tmp_condlist" "$left_dir" > "$tmp_hashlist1"
 
-        When call compdir.sh -f "$tmp_condlist" -b "$tmp_hashlist1" "$right_dir"
+        When call compdir.sh -f "$tmp_condlist" -L "$tmp_hashlist1" "$right_dir"
 
         The output should include 'LEFT -- ----- ./s s.txt'
         The output should include 'LEFT != RIGHT ./b.txt'

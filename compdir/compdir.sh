@@ -5,7 +5,7 @@
 
 function usage_exit () {
     echo "Usage:" `basename $0` "[-f <path_filter_list>] [-t <target_subdir>] [<left_dir> [<right_dir>]]"
-    echo "      " `basename $0` "-b <left_hashlist> [<right_dir>]"
+    echo "      " `basename $0` "-L <left_hashlist> [<right_dir>]"
     echo
     echo "Environment Variables:"
     echo "    TAG_LEFT:   比較結果の表示に使用される、左ディレクトリを表す文字列。"
@@ -55,10 +55,10 @@ trap finally EXIT
 ################################################################################
 # 引数解析
 ################################################################################
-while getopts f:b:t:h OPT
+while getopts f:L:t:h OPT
 do
     case $OPT in
-        b)  LEFT_LIST=$OPTARG
+        L)  LEFT_LIST=$OPTARG
             ;;
         f)  list_file_option="-f $OPTARG"
             ;;
