@@ -6,6 +6,7 @@
 function usage_exit () {
     echo "Usage:" `basename $0` "[-f <path_filter_list>] [-t <target_subdir>] [<left_dir> [<right_dir>]]"
     echo "      " `basename $0` "[-f <path_filter_list>] [-t <target_subdir>] -L <left_hashlist> [<right_dir>]"
+    echo "      " `basename $0` "[-f <path_filter_list>] [-t <target_subdir>] -R <right_hashlist> [<left_dir>]"
     echo
     echo "Environment Variables:"
     echo "    TAG_LEFT:   比較結果の表示に使用される、左ディレクトリを表す文字列。"
@@ -24,6 +25,7 @@ function comp_hashlist () {
 }
 
 left_list_tmp=
+right_list_tmp=
 SHELL_DIR=$(cd $(dirname $0) && pwd)
 SHELL_NAME=`basename $0`
 TMP_DIR="/tmp"
@@ -48,7 +50,7 @@ function finally () {
     set +e +o pipefail
     
     # 一時ファイルが存在する場合に削除
-    rm -f $left_list_tmp
+    rm -f $left_list_tmp $right_list_tmp
 }
 trap finally EXIT
 
@@ -67,6 +69,10 @@ while (( $# > 0 )); do
             ;;
         -L)
             LEFT_LIST="$2"
+            shift 2
+            ;;
+        -R)
+            RIGHT_LIST="$2"
             shift 2
             ;;
         -f)
@@ -100,6 +106,10 @@ if [ -n "$LEFT_LIST" ]; then
     right_dir=${argv[0]:-"."}
 
     left_list=$LEFT_LIST
+elif [ -n "$RIGHT_LIST" ]; then
+    left_dir=${argv[0]:-"."}
+
+    right_list=$RIGHT_LIST
 else
     left_dir=${argv[0]:-"."}
     right_dir=${argv[1]:-"."}
@@ -123,5 +133,13 @@ if [ -z "$left_list" ]; then
     hashlist $list_file_option $target_dir_option $left_dir > $left_list
 fi
 
-# right のハッシュリストを作成して、left のハッシュリストと比較
-hashlist $list_file_option $target_dir_option $right_dir | comp_hashlist $left_list
+# right のハッシュリストを作成。ただし、引数でハッシュリストが指定されている場合は作成しない。
+if [ -z "$right_list" ]; then
+    right_list_tmp=`mktemp $TMP_DIR/$SHELL_NAME.right_list.XXXXXX`
+
+    right_list=$right_list_tmp
+    hashlist $list_file_option $target_dir_option $right_dir > $right_list
+fi
+
+# left と right のハッシュリストと比較
+comp_hashlist $left_list $right_list
