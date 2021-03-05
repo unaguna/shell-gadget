@@ -7,6 +7,7 @@ function usage_exit () {
     echo "Usage:" `basename $0` "[-f <path_filter_list>] [-t <target_subdir>] [<left_dir> [<right_dir>]]"
     echo "      " `basename $0` "[-f <path_filter_list>] [-t <target_subdir>] -L <left_hashlist> [<right_dir>]"
     echo "      " `basename $0` "[-f <path_filter_list>] [-t <target_subdir>] -R <right_hashlist> [<left_dir>]"
+    echo "      " `basename $0` "-L <left_hashlist> -R <right_hashlist>"
     echo
     echo "Environment Variables:"
     echo "    TAG_LEFT:   比較結果の表示に使用される、左ディレクトリを表す文字列。"
@@ -102,7 +103,10 @@ fi
 # 引数取得
 ################################################################################
 
-if [ -n "$LEFT_LIST" ]; then
+if [ -n "$LEFT_LIST" -a -n "$RIGHT_LIST" ]; then
+    left_list=$LEFT_LIST
+    right_list=$RIGHT_LIST
+elif [ -n "$LEFT_LIST" ]; then
     right_dir=${argv[0]:-"."}
 
     left_list=$LEFT_LIST
