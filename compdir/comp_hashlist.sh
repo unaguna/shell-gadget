@@ -4,11 +4,11 @@
 # ファイル同士の同一性はそのハッシュ値によって判断するため、原理的には誤陰性が起こりうる。
 
 function usage_exit () {
-    echo "Usage:" `basename $0` "[--number-state] <base_hashlist> [<clone_hashlist>]"
+    echo "Usage:" `basename $0` "[--number-state] <left_hashlist> [<right_hashlist>]"
     echo
     echo "Environment Variables:"
-    echo "    TAG_BASE:   比較結果の表示に使用される、比較元ディレクトリを表す文字列。"
-    echo "    TAG_CLONE:  比較結果の表示に使用される、比較対象ディレクトリを表す文字列。"
+    echo "    TAG_LEFT:   比較結果の表示に使用される、左ディレクトリを表す文字列。"
+    echo "    TAG_RIGHT:  比較結果の表示に使用される、右ディレクトリを表す文字列。"
     exit $1
 }
 
@@ -49,7 +49,7 @@ while (( $# > 0 )); do
             ;;
     esac
 done
-exit_code=$#
+exit_code=$?
 if [ $exit_code -ne 0 ]; then
     exit $exit_code
 fi
@@ -62,20 +62,20 @@ if [ $argc -le 0 -o $argc -ge 3 ]; then
     usage_exit 1
 fi
 
-base_list=${argv[0]}
-clone_list=${argv[1]:-"-"}
+left_list=${argv[0]}
+right_list=${argv[1]:-"-"}
 
-TAG_BASE=${TAG_BASE:-"base"}
-TAG_BASE_EMPTY=`echo $TAG_BASE | sed 's/./-/g'`
-TAG_CLONE=${TAG_CLONE:-"clone"}
-TAG_CLONE_EMPTY=`echo $TAG_CLONE | sed 's/./-/g'`
+TAG_LEFT=${TAG_LEFT:-"LEFT"}
+TAG_LEFT_EMPTY=`echo $TAG_LEFT | sed 's/./-/g'`
+TAG_RIGHT=${TAG_RIGHT:-"RIGHT"}
+TAG_RIGHT_EMPTY=`echo $TAG_RIGHT | sed 's/./-/g'`
 
 
 # すべてのファイルは次のいずれかに当てはまる。
-#   (I). base にのみ存在し、clone には存在しない
-#   (II). clone にのみ存在し、base には存在しない
-#   (III). base にも clone にも存在するが内容が一致しない
-#   (IV). base にも clone にも存在し、内容が一致する
+#   (I). left にのみ存在し、right には存在しない
+#   (II). right にのみ存在し、left には存在しない
+#   (III). left にも right にも存在するが内容が一致しない
+#   (IV). left にも right にも存在し、内容が一致する
 # これらのうち、(I),(II),(III) に当てはまるものだけを抽出し、
 # 各ファイルがどれに当てはまるかがわかる形式で出力する。
 
@@ -87,7 +87,7 @@ if [ -n "$number_state" ]; then
     state_replace=(cat)
 else
     # 『存在フラグ』を視認しやすい文字列へ変換するコマンド。
-    state_replace=(sed -e "s/^1/$TAG_BASE -- $TAG_CLONE_EMPTY/" -e "s/^2/$TAG_BASE_EMPTY -- $TAG_CLONE/" -e "s/^3/$TAG_BASE != $TAG_CLONE/")
+    state_replace=(sed -e "s/^1/$TAG_LEFT -- $TAG_RIGHT_EMPTY/" -e "s/^2/$TAG_LEFT_EMPTY -- $TAG_RIGHT/" -e "s/^3/$TAG_LEFT != $TAG_RIGHT/")
 fi
 
 # 2つのハッシュリストを比較する。
@@ -100,7 +100,7 @@ fi
 #       (III). 『存在フラグ』が1の行と2の行があり、『ハッシュ値』は一致しない
 #        (IV). 『存在フラグ』が1の行と2の行があり、『ハッシュ値』は一致する
 # sort -k 3 | uniq -f1 -u
-#   (ハッシュ値, ファイルパス) の組が重複する場合、このファイルは base と clone で一致しているので除外する。
+#   (ハッシュ値, ファイルパス) の組が重複する場合、このファイルは left と right で一致しているので除外する。
 #   この時点で、各ファイルについて次の状態になる。
 #         (I). 『存在フラグ』が1の行だけある。
 #        (II). 『存在フラグ』が2の行だけある。
@@ -119,8 +119,8 @@ fi
 # ${state_replace[@]}
 #   上記の『存在フラグ』を、視認しやすい文字列へ変換する。
 {
-    awk '{print "1", $0}' $base_list
-    awk '{print "2", $0}' $clone_list
+    awk '{print "1", $0}' $left_list
+    awk '{print "2", $0}' $right_list
 } | \
 sort -k 3 | uniq -f1 -u | \
 sed -e 's/ \+\([0-9a-fA-F]\+\) \+/\x0\1\x0/' | \

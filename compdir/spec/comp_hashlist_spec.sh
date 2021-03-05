@@ -21,17 +21,17 @@ Describe 'comp_hashlist.sh'
 
         When call comp_hashlist.sh "$tmp_hashlist1" "$tmp_hashlist2"
 
-        The output should include 'base -- ----- ./b b.txt'
-        The output should include '---- -- clone ./c.txt'
-        The output should include 'base != clone ./dir/2.txt'
+        The output should include 'LEFT -- ----- ./b b.txt'
+        The output should include '---- -- RIGHT ./c.txt'
+        The output should include 'LEFT != RIGHT ./dir/2.txt'
         The lines of output should equal 3
 
         rm -f "$tmp_hashlist1" "$tmp_hashlist2"
     End
 
     It 'shows difference list with specified identifiers'
-        export TAG_BASE=DIR1
-        export TAG_CLONE=DIR2
+        export TAG_LEFT=DIR1
+        export TAG_RIGHT=DIR2
 
         tmp_hashlist1=`mktemp`
         tmp_hashlist2=`mktemp`
@@ -110,9 +110,9 @@ Describe 'comp_hashlist.sh'
 
         When call comp_hashlist.sh "$tmp_hashlist1"
 
-        The output should include 'base -- ----- ./b b.txt'
-        The output should include '---- -- clone ./c.txt'
-        The output should include 'base != clone ./dir/2.txt'
+        The output should include 'LEFT -- ----- ./b b.txt'
+        The output should include '---- -- RIGHT ./c.txt'
+        The output should include 'LEFT != RIGHT ./dir/2.txt'
         The lines of output should equal 3
 
         rm -f "$tmp_hashlist1"
