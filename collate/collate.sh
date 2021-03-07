@@ -10,6 +10,15 @@
 readonly EXIT_CODE_FAILED=120
 
 
+function usage_exit () {
+    echo "Usage:" `basename $0` "[-r <retry_number>] expected ..."
+    echo "OPTIONS"
+    echo "       -r <retry_number>"
+    echo "           Number of retries for standard input: default to infinity."
+    exit $1
+}
+
+
 ################################################################################
 # エラーハンドリング
 ################################################################################
@@ -25,10 +34,25 @@ trap finally EXIT
 ################################################################################
 # 引数解析
 ################################################################################
+
+# 照合のリトライ回数上限(正の数でないなら上限なし)
+retry_number=0
+
 declare -i argc=0
 declare -a expected=()
 while (( $# > 0 )); do
     case $1 in
+        -*)
+            if [[ "$1" =~ 'r' ]]; then
+                # TODO: $2 が存在して数値であることの確認
+                retry_number="$2"
+                shift 2
+            elif [[ "$1" =~ 'h' ]]; then
+                usage_exit 1
+            else
+                usage_exit 1
+            fi
+            ;;
         *)
             ((++argc))
             expected=("${expected[@]}" "$1")
@@ -61,6 +85,11 @@ while read line; do
     else
         cnt_faild=$(($cnt_faild+1))
         echo "入力 \"$line\" は期待される文字列と一致しません。" 1>&2
+
+        # 失敗回数が retry-number に達したら終了
+        if [ 1 -le "$retry_number" -a "$cnt_faild" -ge "$retry_number" ]; then
+            exit $EXIT_CODE_FAILED
+        fi
     fi
 
     # 再度の入力を促す
