@@ -12,6 +12,10 @@ function usage_exit () {
     exit $1
 }
 
+function echo_err () {
+    echo "$SHELL_NAME: $@" 1>&2
+}
+
 SHELL_NAME=`basename $0`
 
 
@@ -69,6 +73,33 @@ TAG_LEFT=${TAG_LEFT:-"LEFT"}
 TAG_LEFT_EMPTY=`echo $TAG_LEFT | sed 's/./-/g'`
 TAG_RIGHT=${TAG_RIGHT:-"RIGHT"}
 TAG_RIGHT_EMPTY=`echo $TAG_RIGHT | sed 's/./-/g'`
+
+
+# ファイルの存在チェック
+if [ -n "$left_list" -a "$left_list" != "-" ]; then
+    if [ ! -e "$left_list" ]; then
+        echo_err "fatal: cannot open file \`$left_list' for reading (No such file or directory)"
+        exit 1
+    elif [ ! -f "$left_list" ]; then
+        echo_err "fatal: cannot open file \`$left_list' for reading (It is a directory)"
+        exit 1
+    elif [ ! -r "$left_list" ]; then
+        echo_err "fatal: cannot open file \`$left_list' for reading (Permission denied)"
+        exit 1
+    fi
+fi
+if [ -n "$right_list" -a "$right_list" != "-" ]; then
+    if [ ! -e "$right_list" ]; then
+        echo_err "fatal: cannot open file \`$right_list' for reading (No such file or directory)"
+        exit 1
+    elif [ ! -f "$right_list" ]; then
+        echo_err "fatal: cannot open file \`$right_list' for reading (It is a directory)"
+        exit 1
+    elif [ ! -r "$right_list" ]; then
+        echo_err "fatal: cannot open file \`$right_list' for reading (Permission denied)"
+        exit 1
+    fi
+fi
 
 
 # すべてのファイルは次のいずれかに当てはまる。
