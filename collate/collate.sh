@@ -10,11 +10,15 @@
 readonly EXIT_CODE_FAILED=120
 
 
-function usage_exit () {
+function usage () {
     echo "Usage:" `basename $0` "[-r <retry_number>] expected ..."
     echo "OPTIONS"
     echo "       -r <retry_number>"
     echo "           Number of retries for standard input: default to infinity."
+}
+
+function usage_exit () {
+    usage 1>&2
     exit $1
 }
 
