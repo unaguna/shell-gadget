@@ -62,4 +62,28 @@ Describe 'hashlist.sh'
         rm -f "$tmp_condlist"
     End
 
+    It 'raises error with unexist root-directory'
+        When call hashlist.sh ./spec/sampledir/not_exists
+
+        The status should not equal 0
+        The lines of output should equal 0
+        The error should include 'spec/sampledir/not_exists'
+    End
+
+    It 'raises error with unexist target-directory'
+        When call hashlist.sh -t not_exists ./spec/sampledir/sample_left
+
+        The status should not equal 0
+        The lines of output should equal 0
+        The error should include 'not_exists'
+    End
+
+    It 'raises error with unexist path_filter_list'
+        When call hashlist.sh -f not_exists ./spec/sampledir/sample_left
+
+        The status should not equal 0
+        The lines of output should equal 0
+        The error should include 'not_exists'
+    End
+
 End
