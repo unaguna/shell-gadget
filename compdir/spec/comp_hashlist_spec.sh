@@ -118,4 +118,144 @@ Describe 'comp_hashlist.sh'
         rm -f "$tmp_hashlist1"
     End
 
+    It 'raises error with unexists left-hashlist'
+        tmp_hashlist1=`mktemp`
+
+        {
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c7 ./a.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c8 ./b b.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25ca ./dir/1.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25cb ./dir/2.txt
+        } > "$tmp_hashlist1"
+
+
+        When call comp_hashlist.sh ./not_exists "$tmp_hashlist1"
+
+        The status should not equal 0
+        The lines of output should equal 0
+        The error should include "fatal: cannot open file \`./not_exists' for reading (No such file or directory)"
+
+        rm -f "$tmp_hashlist1"
+    End
+
+    It 'raises error with directory as left-hashlist'
+        tmp_hashlist1=`mktemp -d`
+        tmp_hashlist2=`mktemp`
+
+        {
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c7 ./a.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c9 ./c.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25ca ./dir/1.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c0 ./dir/2.txt
+        } > "$tmp_hashlist2"
+
+
+        When call comp_hashlist.sh "$tmp_hashlist1" "$tmp_hashlist2"
+
+        The status should not equal 0
+        The lines of output should equal 0
+        The error should include "fatal: cannot open file \`$tmp_hashlist1' for reading (It is a directory)"
+
+        rm -Rf "$tmp_hashlist1" "$tmp_hashlist2"
+    End
+
+    It 'raises error with unreadable left-hashlist'
+        tmp_hashlist1=`mktemp`
+        tmp_hashlist2=`mktemp`
+        chmod 222 "$tmp_hashlist1"
+
+        {
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c7 ./a.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c8 ./b b.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25ca ./dir/1.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25cb ./dir/2.txt
+        } > "$tmp_hashlist1"
+
+        {
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c7 ./a.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c9 ./c.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25ca ./dir/1.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c0 ./dir/2.txt
+        } > "$tmp_hashlist2"
+
+
+        When call comp_hashlist.sh "$tmp_hashlist1" "$tmp_hashlist2"
+
+        The status should not equal 0
+        The lines of output should equal 0
+        The error should include "fatal: cannot open file \`$tmp_hashlist1' for reading (Permission denied)"
+
+        rm -f "$tmp_hashlist1" "$tmp_hashlist2"
+    End
+
+    It 'raises error with unexists right-hashlist'
+        tmp_hashlist1=`mktemp`
+
+        {
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c7 ./a.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c8 ./b b.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25ca ./dir/1.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25cb ./dir/2.txt
+        } > "$tmp_hashlist1"
+
+
+        When call comp_hashlist.sh "$tmp_hashlist1" ./not_exists
+
+        The status should not equal 0
+        The lines of output should equal 0
+        The error should include "fatal: cannot open file \`./not_exists' for reading (No such file or directory)"
+
+        rm -f "$tmp_hashlist1"
+    End
+
+    It 'raises error with directory as right-hashlist'
+        tmp_hashlist1=`mktemp`
+        tmp_hashlist2=`mktemp -d`
+
+        {
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c7 ./a.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c9 ./c.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25ca ./dir/1.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c0 ./dir/2.txt
+        } > "$tmp_hashlist1"
+
+
+        When call comp_hashlist.sh "$tmp_hashlist1" "$tmp_hashlist2"
+
+        The status should not equal 0
+        The lines of output should equal 0
+        The error should include "fatal: cannot open file \`$tmp_hashlist2' for reading (It is a directory)"
+
+        rm -Rf "$tmp_hashlist1" "$tmp_hashlist2"
+    End
+
+    It 'raises error with unreadable right-hashlist'
+        tmp_hashlist1=`mktemp`
+        tmp_hashlist2=`mktemp`
+        chmod 222 "$tmp_hashlist2"
+
+        {
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c7 ./a.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c8 ./b b.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25ca ./dir/1.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25cb ./dir/2.txt
+        } > "$tmp_hashlist1"
+
+        {
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c7 ./a.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c9 ./c.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25ca ./dir/1.txt
+            echo 87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c0 ./dir/2.txt
+        } > "$tmp_hashlist2"
+
+
+        When call comp_hashlist.sh "$tmp_hashlist1" "$tmp_hashlist2"
+
+        The status should not equal 0
+        The lines of output should equal 0
+        The error should include "fatal: cannot open file \`$tmp_hashlist2' for reading (Permission denied)"
+
+        rm -f "$tmp_hashlist1" "$tmp_hashlist2"
+    End
+
 End
