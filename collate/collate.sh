@@ -44,7 +44,11 @@ while (( $# > 0 )); do
     case $1 in
         -*)
             if [[ "$1" =~ 'r' ]]; then
-                # TODO: $2 が存在して数値であることの確認
+                # $2 が存在して数値であることの確認
+                if [[ ! "$2" =~ ^[0-9]+$ ]];then
+                    usage_exit 1
+                fi
+
                 retry_number="$2"
                 shift 2
             elif [[ "$1" =~ 'h' ]]; then
