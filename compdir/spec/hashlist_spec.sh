@@ -70,6 +70,14 @@ Describe 'hashlist.sh'
         The error should include 'spec/sampledir/not_exists'
     End
 
+    It 'raises error with not-directory file as root-directory'
+        When call hashlist.sh ./spec/sampledir/sample_left/a.txt
+
+        The status should not equal 0
+        The lines of output should equal 0
+        The error should include 'spec/sampledir/sample_left/a.txt'
+    End
+
     It 'raises error with unexist target-directory'
         When call hashlist.sh -t not_exists ./spec/sampledir/sample_left
 
@@ -84,6 +92,14 @@ Describe 'hashlist.sh'
         The status should not equal 0
         The lines of output should equal 0
         The error should include 'not_exists'
+    End
+
+    It 'raises error with directory as path_filter_list'
+        When call hashlist.sh -f ./spec/sampledir ./spec/sampledir/sample_left
+
+        The status should not equal 0
+        The lines of output should equal 0
+        The error should include './spec/sampledir'
     End
 
 End
