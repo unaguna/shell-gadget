@@ -2,7 +2,7 @@
 
 
 function usage_exit () {
-    echo "Usage:" `basename $0` "[-f <path_filter_list>] [-t <target_directory>] [<root_directory>]"
+    echo "Usage:" `basename $0` "[-f <path_filter_list>] [-t <target_directory>] ... [<root_directory>]"
     exit 1
 }
 
@@ -26,12 +26,13 @@ trap finally EXIT
 ################################################################################
 # 引数解析
 ################################################################################
+target_dir=()
 while getopts f:t:h OPT
 do
     case $OPT in
         f)  list_file=$OPTARG
             ;;
-        t)  target_dir=$OPTARG
+        t)  target_dir+=( $OPTARG )
             ;;
         h)  usage_exit
             ;;
@@ -51,11 +52,11 @@ target_dir=${target_dir:-"."}
 
 
 if [ -n "$list_file" ]; then
-    ( cd "$root_dir" && find "$target_dir" -type f -print0 ) | \
+    ( cd "$root_dir" && find "${target_dir[@]}" -type f -print0 ) | \
     pathfilter.sh -z -f $list_file | \
     ( cd "$root_dir" && xargs -r -0 sha256sum )
 else
-    cd "$root_dir" && find "$target_dir" -type f -print0 | \
+    cd "$root_dir" && find "${target_dir[@]}" -type f -print0 | \
     xargs -r0 sha256sum
 fi
 
