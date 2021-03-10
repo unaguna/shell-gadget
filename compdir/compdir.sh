@@ -4,9 +4,9 @@
 # ファイル同士の同一性はそのハッシュ値によって判断するため、原理的には誤陰性が起こりうる。
 
 function usage_exit () {
-    echo "Usage:" `basename $0` "[-f <path_filter_list>] [-t <target_subdir>] [<left_dir> [<right_dir>]]"
-    echo "      " `basename $0` "[-f <path_filter_list>] [-t <target_subdir>] -L <left_hashlist> [<right_dir>]"
-    echo "      " `basename $0` "[-f <path_filter_list>] [-t <target_subdir>] -R <right_hashlist> [<left_dir>]"
+    echo "Usage:" `basename $0` "[-f <path_filter_list>] [-t <target_subdir>] ... [<left_dir> [<right_dir>]]"
+    echo "      " `basename $0` "[-f <path_filter_list>] [-t <target_subdir>] ... -L <left_hashlist> [<right_dir>]"
+    echo "      " `basename $0` "[-f <path_filter_list>] [-t <target_subdir>] ... -R <right_hashlist> [<left_dir>]"
     echo "      " `basename $0` "-L <left_hashlist> -R <right_hashlist>"
     echo
     echo "Environment Variables:"
@@ -37,8 +37,8 @@ PATH="$SHELL_DIR:$PATH"
 list_file_option=
 
 # hashlist 実行時の -t オプション。
-# 指定するなら "-t <target_dir>" の形にし、指定しないなら空文字列にする。
-target_dir_option=
+# 指定するなら "-t" "<target_dir>" の形にし、指定しないなら空の配列にする。
+target_dir_option=()
 
 
 ################################################################################
@@ -81,7 +81,7 @@ while (( $# > 0 )); do
             shift 2
             ;;
         -t)
-            target_dir_option="-t $2"
+            target_dir_option+=( "-t" "$2" )
             shift 2
             ;;
         -*)
@@ -134,7 +134,7 @@ if [ -z "$left_list" ]; then
     left_list_tmp=`mktemp $TMP_DIR/$SHELL_NAME.left_list.XXXXXX`
 
     left_list=$left_list_tmp
-    hashlist $list_file_option $target_dir_option $left_dir > $left_list
+    hashlist $list_file_option "${target_dir_option[@]}" $left_dir > $left_list
 fi
 
 # right のハッシュリストを作成。ただし、引数でハッシュリストが指定されている場合は作成しない。
@@ -142,7 +142,7 @@ if [ -z "$right_list" ]; then
     right_list_tmp=`mktemp $TMP_DIR/$SHELL_NAME.right_list.XXXXXX`
 
     right_list=$right_list_tmp
-    hashlist $list_file_option $target_dir_option $right_dir > $right_list
+    hashlist $list_file_option "${target_dir_option[@]}" $right_dir > $right_list
 fi
 
 # left と right のハッシュリストと比較

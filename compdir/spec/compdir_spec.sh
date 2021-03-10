@@ -20,6 +20,14 @@ Describe 'compdir.sh'
         The lines of output should equal 1
     End
 
+    It 'compares two target directories (2)'
+        When call compdir.sh -t dir -t b.txt "$left_dir" "$right_dir"
+
+        The output should include 'LEFT != RIGHT b.txt'
+        The output should include 'LEFT -- ----- dir/2.txt'
+        The lines of output should equal 2
+    End
+
     It 'compares two directories with filter'
         tmp_condlist=`mktemp`
 
