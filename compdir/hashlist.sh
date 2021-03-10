@@ -56,6 +56,6 @@ if [ -n "$list_file" ]; then
     ( cd "$root_dir" && xargs -r -0 sha256sum )
 else
     cd "$root_dir" && find "$target_dir" -type f -print0 | \
-    xargs -0 sha256sum
+    xargs -r0 sha256sum
 fi
 
