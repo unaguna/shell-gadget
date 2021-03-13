@@ -40,6 +40,10 @@ list_file_option=
 # 指定するなら "-t" "<target_dir>" の形にし、指定しないなら空の配列にする。
 target_dir_option=()
 
+# pathfilter_awk 実行時の -a オプション。
+# 指定するなら "-a" "<dir>" の形にし、指定しないなら空の配列にする。
+accept_dir_option=()
+
 
 ################################################################################
 # エラーハンドリング
@@ -82,6 +86,7 @@ while (( $# > 0 )); do
             ;;
         -t)
             target_dir_option+=( "-t" "$2" )
+            accept_dir_option+=( "-a" "$2" )
             shift 2
             ;;
         -*)
@@ -128,18 +133,34 @@ fi
 # これらのうち、(I),(II),(III) に当てはまるものだけを抽出し、
 # 各ファイルがどれに当てはまるかがわかる形式で出力する。
 
+readonly left_list_tmp=`mktemp $TMP_DIR/$SHELL_NAME.left_list.XXXXXX`
+readonly right_list_tmp=`mktemp $TMP_DIR/$SHELL_NAME.right_list.XXXXXX`
 
-# left のハッシュリストを作成。ただし、引数でハッシュリストが指定されている場合は作成しない。
-if [ -z "$left_list" ]; then
-    left_list_tmp=`mktemp $TMP_DIR/$SHELL_NAME.left_list.XXXXXX`
+# left のハッシュリストを作成。
+if [ -n "$left_list" ]; then
+    # 引数で指定されている場合、そこから target_subdir 以外を取り除く
+
+    if [ ${#accept_dir_option[@]} -ge 1 ]; then
+        pathfilter_awk.sh -k 2 "${accept_dir_option[@]}" "$left_list" > "$left_list_tmp"
+        left_list=$left_list_tmp
+    fi
+else
+    # 引数で指定されていない場合、新たに作成
 
     left_list=$left_list_tmp
     hashlist $list_file_option "${target_dir_option[@]}" $left_dir > $left_list
 fi
 
-# right のハッシュリストを作成。ただし、引数でハッシュリストが指定されている場合は作成しない。
-if [ -z "$right_list" ]; then
-    right_list_tmp=`mktemp $TMP_DIR/$SHELL_NAME.right_list.XXXXXX`
+# right のハッシュリストを作成。
+if [ -n "$right_list" ]; then
+    # 引数で指定されている場合、そこから target_subdir 以外を取り除く
+
+    if [ ${#accept_dir_option[@]} -ge 1 ]; then
+        pathfilter_awk.sh -k 2 "${accept_dir_option[@]}" "$right_list" > "$right_list_tmp"
+        right_list=$right_list_tmp
+    fi
+else
+    # 引数で指定されていない場合、新たに作成
 
     right_list=$right_list_tmp
     hashlist $list_file_option "${target_dir_option[@]}" $right_dir > $right_list

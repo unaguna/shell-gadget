@@ -112,6 +112,53 @@ Describe 'compdir.sh'
         rm -f "$tmp_hashlist1" "$tmp_hashlist2"
     End
 
+    It 'compares the the hashlist and directory with target-dir'
+        tmp_hashlist1=`mktemp`
+
+        # ハッシュリストは余分な行も含んでいる
+        hashlist.sh -t dir -t a.txt -t b.txt "$left_dir" > "$tmp_hashlist1"
+
+        # ハッシュリストの一部のみ (dir のみ) をターゲットにする
+        When call compdir.sh -t dir -L "$tmp_hashlist1" "$right_dir"
+
+        The output should include 'LEFT -- ----- dir/2.txt'
+        The lines of output should equal 1
+
+        rm -f "$tmp_hashlist1"
+    End
+
+    It 'compares the the directory and hashlist with target-dir'
+        tmp_hashlist1=`mktemp`
+
+        # ハッシュリストは余分な行も含んでいる
+        hashlist.sh -t dir -t a.txt -t d.txt "$right_dir" > "$tmp_hashlist1"
+
+        # ハッシュリストの一部のみ (dir のみ) をターゲットにする
+        When call compdir.sh -t dir -R "$tmp_hashlist1" "$left_dir"
+
+        The output should include 'LEFT -- ----- dir/2.txt'
+        The lines of output should equal 1
+
+        rm -f "$tmp_hashlist1"
+    End
+
+    It 'compares the two hashlists with target-dir'
+        tmp_hashlist1=`mktemp`
+        tmp_hashlist2=`mktemp`
+
+        # ハッシュリストは余分な行も含んでいる
+        hashlist.sh -t dir -t a.txt -t b.txt "$left_dir" > "$tmp_hashlist1"
+        hashlist.sh -t dir -t a.txt -t d.txt "$right_dir" > "$tmp_hashlist2"
+
+        # ハッシュリストの一部のみ (dir のみ) をターゲットにする
+        When call compdir.sh -t dir -L "$tmp_hashlist1" -R "$tmp_hashlist2"
+
+        The output should include 'LEFT -- ----- dir/2.txt'
+        The lines of output should equal 1
+
+        rm -f "$tmp_hashlist1" "$tmp_hashlist2"
+    End
+
     It 'compares the hashlist and the directory with filter'
         tmp_hashlist1=`mktemp`
         tmp_condlist=`mktemp`
