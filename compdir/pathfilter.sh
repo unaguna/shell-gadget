@@ -2,7 +2,6 @@
 
 SHELL_DIR=$(cd $(dirname $0) && pwd)
 SHELL_NAME=`basename $0`
-TMP_DIR="/tmp"
 PATH="$SHELL_DIR:$PATH"
 
 
@@ -33,7 +32,7 @@ do
     if [ "$1" == "-f" ]; then
         args+=( "$1" )
         list_file=$2
-        script_file=`mktemp $TMP_DIR/$SHELL_NAME.script_file.XXXXXX`
+        script_file=`mktemp -t "$SHELL_NAME.script_file.XXXXXX"`
         args+=( "$script_file" )
         shift 2
     else

@@ -30,7 +30,6 @@ right_list_tmp=
 readonly script_dir=$(cd $(dirname $0) && pwd)
 readonly script_real_dir=$(dirname $(readlink -f "$0"))
 readonly script_name=`basename $0`
-TMP_DIR="/tmp"
 PATH="$script_dir:$script_real_dir:$PATH"
 
 # hashlist 実行時の -f オプション。
@@ -134,8 +133,8 @@ fi
 # これらのうち、(I),(II),(III) に当てはまるものだけを抽出し、
 # 各ファイルがどれに当てはまるかがわかる形式で出力する。
 
-readonly left_list_tmp=`mktemp $TMP_DIR/$script_name.left_list.XXXXXX`
-readonly right_list_tmp=`mktemp $TMP_DIR/$script_name.right_list.XXXXXX`
+readonly left_list_tmp=`mktemp -t "$script_name.left_list.XXXXXX"`
+readonly right_list_tmp=`mktemp -t "$script_name.right_list.XXXXXX"`
 
 # left のハッシュリストを作成。
 if [ -n "$left_list" ]; then
