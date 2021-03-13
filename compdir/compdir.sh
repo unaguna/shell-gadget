@@ -27,10 +27,11 @@ function comp_hashlist () {
 
 left_list_tmp=
 right_list_tmp=
-SHELL_DIR=$(cd $(dirname $0) && pwd)
-SHELL_NAME=`basename $0`
+readonly script_dir=$(cd $(dirname $0) && pwd)
+readonly script_real_dir=$(dirname $(readlink -f "$0"))
+readonly script_name=`basename $0`
 TMP_DIR="/tmp"
-PATH="$SHELL_DIR:$PATH"
+PATH="$script_dir:$script_real_dir:$PATH"
 
 # hashlist 実行時の -f オプション。
 # 指定するなら "-f <path_filter_list>" の形にし、指定しないなら空文字列にする。
@@ -133,8 +134,8 @@ fi
 # これらのうち、(I),(II),(III) に当てはまるものだけを抽出し、
 # 各ファイルがどれに当てはまるかがわかる形式で出力する。
 
-readonly left_list_tmp=`mktemp $TMP_DIR/$SHELL_NAME.left_list.XXXXXX`
-readonly right_list_tmp=`mktemp $TMP_DIR/$SHELL_NAME.right_list.XXXXXX`
+readonly left_list_tmp=`mktemp $TMP_DIR/$script_name.left_list.XXXXXX`
+readonly right_list_tmp=`mktemp $TMP_DIR/$script_name.right_list.XXXXXX`
 
 # left のハッシュリストを作成。
 if [ -n "$left_list" ]; then

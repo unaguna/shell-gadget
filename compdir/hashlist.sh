@@ -7,8 +7,10 @@ function usage_exit () {
 }
 
 
-SHELL_DIR=$(cd $(dirname $0) && pwd)
-PATH="$SHELL_DIR:$PATH"
+readonly script_dir=$(cd $(dirname $0) && pwd)
+readonly script_real_dir=$(dirname $(readlink -f "$0"))
+readonly script_name=`basename $0`
+PATH="$script_dir:$script_real_dir:$PATH"
 
 
 ################################################################################
