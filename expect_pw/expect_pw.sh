@@ -42,6 +42,27 @@ function echo_err () {
 # 引数取得
 ###############################################################################
 
+# expect の spawn に指定する -noecho オプション。
+# 指定するなら '-noecho'、しないなら空文字列。
+opt_echo='-noecho'
+
+# このシェルのオプションを取得
+while (( $# > 0 )); do
+    case $1 in
+        --spawn-echo)
+            opt_echo=''
+            shift 1
+            ;;
+        -*)
+            # 不明なオプション
+            echo_err "$script_name: Unknown option: $1"
+            exit 1
+            ;;
+        *)
+            break
+    esac
+done
+
 # 実行するコマンド
 command="$@"
 
@@ -70,7 +91,7 @@ PRE_TIMEOUT_INTERVAL=${PRE_TIMEOUT_INTERVAL:-5}
 
 expect -c "
     set timeout $PRE_TIMEOUT_INTERVAL
-    spawn -noecho ${command[@]}
+    spawn $opt_echo ${command[@]}
     expect {
         \"password: \" {
             send \"$PASSWORD\n\"
